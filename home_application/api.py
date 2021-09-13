@@ -10,5 +10,4 @@ async def demo(person:Optional[models.Person],request:Request):
     person = dict(person)
     person = models.PersonSqlModel(**person)
     success = models.Cursor.create(person)
-    # return "{}今年{}岁".format(person.name,person.age)
     return success
