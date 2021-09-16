@@ -1,4 +1,5 @@
 from sqlite3.dbapi2 import NotSupportedError
+from functools import wraps
 from sqlalchemy.sql.expression import except_all
 import uvicorn
 import sys
@@ -14,9 +15,9 @@ app = FastAPI()
 app.include_router(router)
 
 class CommandError(Exception):
-    def __init__(self, message="Command is not exist!"):
+    def __init__(self, command):
+        message = "Command: `{command}` is not exist!".format(command=command)
         super().__init__(message)
-        self.message = message
 
 
 class ApplicationCommand(object):
@@ -30,19 +31,30 @@ class ApplicationCommand(object):
 
     def dispatch_command(self, command, args=None):
         if not hasattr(self, command):
-            raise CommandError
+            raise CommandError(command)
         return getattr(self, command)(args)
+    
+    def help(self, *args, **kwargs):
+        print("\n".join([
+            "\n",
+            "=====================================================",
+            "1. runserver: start the web server with uvicorn.",
+            "2. mkdb: make database's tables with SQLModel engine.",
+            "=====================================================",
+            "If we have not the command what you need, you can create a issue for us, or you can create a pull request.",
+            "\n"
+        ]))
 
-    def runserver(self, args):
+    def runserver(self, agvs, *args, **kwargs):
         try:
-            host = args[0]
-            port = int(args[1])
+            host = agvs[0]
+            port = int(agvs[1])
         except IndexError:
             host = "127.0.0.1"
             port = 8000
         uvicorn.run(app, host=host, port=port)
 
-    def mkdb(self):
+    def mkdb(self, *args, **kwargs):
         SQLModel.metadata.create_all(conf.engine)
 
 
