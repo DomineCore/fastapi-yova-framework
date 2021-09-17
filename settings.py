@@ -1,4 +1,9 @@
-from sqlmodel import create_engine, SQLModel
 
-engine = create_engine("sqlite:///database.sqlite3")
-SQLModel.metadata.create_all(engine)
+class Config(object):
+    DB_ENGINE_CONFIG = {
+        "BACKEND": "sqlite:///absolute/Users/fengyafei/project/FastAPI-framework/yova/database.sqlite3"
+    }
+
+    INSTALLED_APPS = [
+        'home_application'
+    ]

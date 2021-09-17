@@ -1,13 +1,28 @@
-from fastapi import APIRouter,Request
-from home_application import models
 from typing import Optional
+from home_application import models
+from core.db.query import Cursor
 
+async def save_person(person:Optional[models.Person]):
+    try:
+        Cursor.create(person)
+    except Exception as e:
+        return {
+            "result":False,
+            "code":"500",
+            "message":"发生了一个小小的错误,不要慌,db模块加紧开发中"
+        }
+    return {
+        "result":True,
+        "code":"0",
+        "data":person.name
+    }
 
-router = APIRouter()
-
-@router.post('/')
-async def demo(person:Optional[models.Person],request:Request):
-    person = dict(person)
-    person = models.PersonSqlModel(**person)
-    success = models.Cursor.create(person)
-    return success
+async def test_my_api(person:Optional[models.Person]):
+    return {
+        "result":True,
+        "code":0,
+        "data":{
+            "name":person.name,
+            "age":person.age
+        }
+    }
